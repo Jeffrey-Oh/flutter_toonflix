@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:toonflix/models/webtoon_detail_model.dart';
 import 'package:toonflix/models/webtoon_episode_model.dart';
 import 'package:toonflix/services/api_service.dart';
-import 'package:toonflix/widgets/common_scaffold.dart';
 import 'package:toonflix/widgets/episode_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailScreen extends StatefulWidget {
   final String title, thumb, id;
@@ -24,6 +24,24 @@ class _DetailScreenState extends State<DetailScreen> {
   // 여기서는 DetailScreen
   late Future<WebtoonDetailModel> webtoon;
   late Future<List<WebtoonEpisodeModel>> episodes;
+  late SharedPreferences prefs;
+  bool isLiked = false;
+
+  Future initPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    final likedToons = prefs.getStringList('likedToons');
+    if (likedToons != null) {
+      if (likedToons.contains(widget.id)) {
+        setState(() {
+          isLiked = true;
+        });
+      }
+    } else {
+      // init
+      final result = await prefs.setStringList('likedToons', []);
+      if (!result) throw Error();
+    }
+  }
 
   @override
   void initState() {
@@ -34,12 +52,52 @@ class _DetailScreenState extends State<DetailScreen> {
 
     webtoon = ApiService.getToonById(widget.id);
     episodes = ApiService.getEpisodeById(widget.id);
+
+    initPrefs();
+  }
+
+  void onHeartTap() async {
+    final likedToons = prefs.getStringList('likedToons');
+    if (likedToons != null) {
+      if (isLiked) {
+        likedToons.remove(widget.id);
+      } else {
+        likedToons.add(widget.id);
+      }
+      final result = await prefs.setStringList('likedToons', likedToons);
+      if (!result) throw Error();
+
+      setState(() {
+        isLiked = !isLiked;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return CommonScaffold(
-      title: widget.title,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 2,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.green,
+        actions: [
+          IconButton(
+            onPressed: onHeartTap,
+            icon: Icon(
+              isLiked
+                  ? Icons.favorite_outlined
+                  : Icons.favorite_outline_outlined,
+            ),
+          ),
+        ],
+        title: Text(
+          widget.title,
+          style: const TextStyle(
+            fontSize: 26,
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(50),
