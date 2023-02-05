@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:toonflix/widgets/common_scaffold.dart';
 
 class DetailScreen extends StatelessWidget {
   final String title, thumb, id;
@@ -12,19 +13,8 @@ class DetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        elevation: 2,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.green,
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 26,
-          ),
-        ),
-      ),
+    return CommonScaffold(
+      title: title,
       body: Column(
         children: [
           const SizedBox(

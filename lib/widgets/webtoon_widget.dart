@@ -36,6 +36,7 @@ class Webtoon extends StatelessWidget {
         children: [
           // Hero - 이미지를 같은 것을 사용하는 느낌을 줄 수 있게 하는 위젯
           // tag 값을 사용하여 연결함
+          // 양방향으로 설정해야함
           Hero(
             tag: id,
             child: Container(
